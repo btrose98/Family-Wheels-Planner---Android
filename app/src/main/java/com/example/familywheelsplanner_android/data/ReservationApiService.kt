@@ -10,7 +10,7 @@ import retrofit2.http.Path
 interface ReservationApiService {
 
     @GET("reservations")
-    suspend fun getReservations()
+    suspend fun getReservations(): List<Reservation>
 
     @POST("reservations")
     suspend fun makeReservation(@Body reservation: Reservation)

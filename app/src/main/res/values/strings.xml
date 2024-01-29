@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FamilyWheelsPlanner-Android</string>
+    <string name="top_bar_title">Family Wheels Planner</string>
 </resources>

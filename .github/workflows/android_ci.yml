@@ -24,14 +24,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
       - name: Build with Gradle
         run: ./gradlew build
 
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest jacocoTestReport
+        run: ./gradlew testDebugUnitTest
+
+      - name: Generate jacoco coverage report
+        run: ./gradlew jacocoTestReport
+
+      - name: Publish jacoco report as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco-report
+          path: app/build/reports/jacoco/jacocoTestReport.xml
 
       - name: Publish test reports as artifacts
         uses: actions/upload-artifact@v2

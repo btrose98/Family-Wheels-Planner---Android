@@ -30,6 +30,9 @@ jobs:
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
 
+      - name: Run instrumented tests
+        run: ./gradlew connectedCheck
+
       - name: Publish test reports as artifacts
         uses: actions/upload-artifact@v2
         with:

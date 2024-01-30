@@ -77,8 +77,9 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0") // For Gson serialization
 
-
     //Mockk
-
+    testImplementation ("io.mockk:mockk:1.13.9")
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+    androidTestImplementation ("io.mockk:mockk-android:1.13.9")
 
 }

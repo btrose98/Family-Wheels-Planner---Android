@@ -52,7 +52,7 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
                 is ReservationViewState.Error -> {
                     val errorMessage = (reservationViewState as ReservationViewState.Error).message
                     Text(
-                        text = errorMessage,
+                        text = errorMessage.errorMessage ?: "",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(16.dp).align(Alignment.Center)
                     )

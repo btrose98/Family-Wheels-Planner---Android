@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
-    id("jacoco")
+//    id("jacoco")
 }
 
 android {
@@ -52,10 +52,10 @@ android {
     }
 }
 
-jacoco {
-    toolVersion = "0.8.9"
-    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
-}
+//jacoco {
+//    toolVersion = "0.8.9"
+//    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
+//}
 
 dependencies {
 

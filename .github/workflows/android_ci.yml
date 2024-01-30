@@ -1,4 +1,4 @@
-name: Andoid CI
+name: Android CI
 
 on:
   push:
@@ -29,15 +29,6 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
-
-      - name: Generate jacoco coverage report
-        run: ./gradlew jacocoTestReport
-
-      - name: Publish jacoco report as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: jacoco-report
-          path: app/build/reports/jacoco/jacocoTestReport.xml
 
       - name: Publish test reports as artifacts
         uses: actions/upload-artifact@v2

@@ -21,15 +21,6 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-      - name: Start Android emulator
-        run: |
-          echo "no" | avdmanager create avd -n test -k "system-images;android-34;google_apis;x86_64"
-          emulator -avd test -no-audio -no-window -gpu swiftshader_indirect:
-            background: true
-
-      - name: Wait for emulator to start
-        run: adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
-
       - name: Make gradlew executable
         run: chmod +x gradlew
 
@@ -39,8 +30,17 @@ jobs:
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest
 
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
       - name: Run instrumented tests
-        run: ./gradlew connectedCheck
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          script: ./gradlew connectedCheck
 
       - name: Publish test reports as artifacts
         uses: actions/upload-artifact@v2

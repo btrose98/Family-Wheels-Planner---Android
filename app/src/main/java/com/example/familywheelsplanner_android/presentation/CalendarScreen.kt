@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.familywheelsplanner_android.R
@@ -66,7 +67,7 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
 fun MyCalendar(reservations: List<Reservation>) {
     LazyColumn {
         items(reservations) {
-            Text(text = it.toString())
+            Text(text = it.toString(), Modifier.testTag("TestReservation"))
         }
     }
 }

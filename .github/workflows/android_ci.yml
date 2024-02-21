@@ -25,7 +25,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set up secrets
-        run: echo "BASE_URL=${{ secrets.BASE_URL }}" > secrets.properties
+        run: |
+          echo "The value of BASE_URL secret is ${{ secrets.BASE_URL }}"
+          echo "BASE_URL=${{ secrets.BASE_URL }}" > secrets.properties
 
       - name: Build with Gradle
         run: ./gradlew build

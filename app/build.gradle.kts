@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -21,6 +23,18 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val secretsFile = project.rootProject.file("secrets.properties")
+        val properties = Properties()
+        properties.load(secretsFile.inputStream())
+
+        //return empty key in case something goes wrong
+        val baseUrl = properties.getProperty("BASE_URL") ?: ""
+            buildConfigField(
+                type = "String",
+                name = "BASE_URL",
+                value = baseUrl
+            )
     }
 
     buildTypes {
@@ -41,6 +55,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
@@ -74,6 +89,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation ("com.jakewharton.timber:timber:5.0.1")
 
     //Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.46")

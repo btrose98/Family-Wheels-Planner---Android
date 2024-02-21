@@ -15,11 +15,15 @@ import com.example.familywheelsplanner_android.presentation.CalendarScreen
 import com.example.familywheelsplanner_android.presentation.ReservationViewModel
 import com.example.familywheelsplanner_android.ui.theme.FamilyWheelsPlannerAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Timber.plant(Timber.DebugTree())
+
         setContent {
             FamilyWheelsPlannerAndroidTheme {
                 // A surface container using the 'background' color from the theme

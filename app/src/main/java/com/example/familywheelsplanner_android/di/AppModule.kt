@@ -1,7 +1,6 @@
 package com.example.familywheelsplanner_android.di
 
 import com.example.familywheelsplanner_android.data.ReservationApiService
-import com.example.familywheelsplanner_android.data.ReservationApiServiceImpl
 import com.example.familywheelsplanner_android.data.ReservationRepositoryImpl
 import com.example.familywheelsplanner_android.domain.ReservationRepository
 import com.example.familywheelsplanner_android.presentation.ReservationViewModel
@@ -11,24 +10,19 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.familywheelsplanner_android.BuildConfig
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
     @Provides
-    fun provideRetrofit(): Retrofit {
+    fun provideReservationApiService(): ReservationApiService {
         return Retrofit.Builder()
-            .baseUrl("http://your-api-base-url.com/")
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    @Provides
-    fun provideReservationApiService(
-        retrofit: Retrofit
-    ): ReservationApiService {
-        return ReservationApiServiceImpl(retrofit)
+            .create(ReservationApiService::class.java)
     }
 
     @Provides

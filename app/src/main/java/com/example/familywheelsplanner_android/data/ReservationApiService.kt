@@ -9,12 +9,12 @@ import retrofit2.http.Path
 
 interface ReservationApiService {
 
-    @GET("reservations")
+    @GET("/reservations")
     suspend fun getReservations(): List<Reservation>
 
-    @POST("reservations")
+    @POST("/reservations")
     suspend fun makeReservation(@Body reservation: Reservation)
 
-    @DELETE("reservations/{reservationId}")
+    @DELETE("/reservations/{reservationId}")
     suspend fun deleteReservation(@Path ("reservationId") reservationId: String)
 }

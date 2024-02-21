@@ -1,7 +1,10 @@
 package com.example.familywheelsplanner_android.presentation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,36 +36,44 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
             TopAppBar(title = { Text("${R.string.top_bar_title}",) })
         },
     ) { paddingValues ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            Alignment.Center
         ) {
-            when(reservationViewState) {
-                ReservationViewState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .padding(16.dp)
-                            .align(Alignment.Center)
-                    )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when(reservationViewState) {
+                    ReservationViewState.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(16.dp)
+                        )
+                    }
+                    is ReservationViewState.Success -> {
+                        val reservations = (reservationViewState as ReservationViewState.Success).reservations
+                        MyCalendar(reservations)
+                    }
+                    is ReservationViewState.Error -> {
+                        val errorMessage = (reservationViewState as ReservationViewState.Error).message
+                        Text(
+                            text = errorMessage.errorMessage ?: "",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(16.dp)
+                        )
+                    }
                 }
-                is ReservationViewState.Success -> {
-                    val reservations = (reservationViewState as ReservationViewState.Success).reservations
-                    MyCalendar(reservations)
+                Spacer(modifier = Modifier.height(16.dp)) // Add space between text and button
+                Button(
+                    onClick = { viewModel.fetchAllReservations() },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Text(text = "Refresh reservations")
                 }
-                is ReservationViewState.Error -> {
-                    val errorMessage = (reservationViewState as ReservationViewState.Error).message
-                    Text(
-                        text = errorMessage.errorMessage ?: "",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.Center)
-                    )
-                }
-            }
-            Button(onClick = { viewModel.fetchReservations() }) {
-                Text(text = "Refresh reservations")
             }
         }
     }

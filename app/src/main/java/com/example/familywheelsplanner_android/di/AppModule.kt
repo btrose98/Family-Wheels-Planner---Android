@@ -18,8 +18,10 @@ object AppModule {
 
     @Provides
     fun provideReservationApiService(): ReservationApiService {
+        val baseUrl = System.getenv("BASE_URL") ?: BuildConfig.BASE_URL
+
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ReservationApiService::class.java)

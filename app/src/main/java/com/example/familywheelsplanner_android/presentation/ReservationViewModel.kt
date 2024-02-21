@@ -46,6 +46,22 @@ class ReservationViewModel @Inject constructor(
         }
     }
 
+    fun fetchAllReservations() {
+        _reservationViewState.value = ReservationViewState.Loading
+        defaultScope.launch {
+            try {
+                val reservations = reservationRepo.fetchAllReservations()
+                _reservationViewState.value = ReservationViewState.Success(reservations)
+            } catch (e: Exception) {
+                val error = when(e) {
+                    is NetworkException -> ReservationError.NetworkError(e.message ?: "Unknown network error")
+                    else -> ReservationError.UnkownError
+                }
+                _reservationViewState.value = ReservationViewState.Error(error)
+            }
+        }
+    }
+
     fun makeReservation(reservation: Reservation) {
         defaultScope.launch {
             if(!isReservationDateValid(reservation)) {

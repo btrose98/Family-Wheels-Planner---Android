@@ -12,6 +12,9 @@ interface ReservationApiService {
     @GET("/reservations")
     suspend fun getReservations(): List<Reservation>
 
+    @GET("/reservations-all")
+    suspend fun getAllReservations(): List<Reservation>
+
     @POST("/reservations")
     suspend fun makeReservation(@Body reservation: Reservation)
 

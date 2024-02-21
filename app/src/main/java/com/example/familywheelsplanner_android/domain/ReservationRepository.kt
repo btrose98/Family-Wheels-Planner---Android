@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface ReservationRepository {
     suspend fun fetchReservations(): List<Reservation>
+    suspend fun fetchAllReservations(): List<Reservation>
     suspend fun makeReservation(reservation: Reservation)
     suspend fun deleteReservation(reservationId: Int)
 }

@@ -24,6 +24,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Set BASE_URL
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+        run: echo "BASE_URL=${BASE_URL}" >> $GITHUB_ENV
+
       - name: Build with Gradle
         run: ./gradlew build
 

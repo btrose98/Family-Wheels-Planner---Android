@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -53,6 +54,7 @@ class ReservationViewModel @Inject constructor(
             try {
                 val reservations = reservationRepo.fetchAllReservations()
                 _reservationViewState.value = ReservationViewState.Success(reservations)
+                Timber.d("resulting reservations from server: $reservations")
             } catch (e: Exception) {
                 val error = when(e) {
                     is NetworkException -> ReservationError.NetworkError(e.message ?: "Unknown network error")

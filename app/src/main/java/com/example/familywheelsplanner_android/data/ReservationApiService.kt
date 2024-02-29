@@ -12,7 +12,7 @@ interface ReservationApiService {
     @GET("/reservations")
     suspend fun getReservations(): List<Reservation>
 
-    @GET("/reservations-all")
+    @GET("/reservations/all")
     suspend fun getAllReservations(): List<Reservation>
 
     @POST("/reservations")

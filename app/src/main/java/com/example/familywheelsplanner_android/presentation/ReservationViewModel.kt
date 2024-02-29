@@ -3,6 +3,7 @@ package com.example.familywheelsplanner_android.presentation
 import android.net.http.NetworkException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.familywheelsplanner_android.domain.FamilyMember
 import com.example.familywheelsplanner_android.domain.Reservation
 import com.example.familywheelsplanner_android.domain.ReservationError
 import com.example.familywheelsplanner_android.domain.ReservationRepository
@@ -62,7 +63,9 @@ class ReservationViewModel @Inject constructor(
         }
     }
 
-    fun makeReservation(reservation: Reservation) {
+    fun makeReservation(reservationId: Int, reservationDate: LocalDateTime, reservationOwner: FamilyMember) {
+        val tzEnforcedDate = Reservation.convertToUSEastern(reservationDate)
+        val reservation = Reservation(reservationId, tzEnforcedDate, reservationOwner)
         defaultScope.launch {
             if(!isReservationDateValid(reservation)) {
                 _reservationViewState.value = ReservationViewState.Error(ReservationError.InvalidDateTime)

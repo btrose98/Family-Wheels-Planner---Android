@@ -60,15 +60,13 @@ class ReservationViewModelTest {
 
     @Test
     fun `makeReservation with past date results in ReservationError`() = runTest {
-        val reservation = Reservation(0, LocalDateTime.now().minusDays(1), testMember)
-        viewModel.makeReservation(reservation)
+        viewModel.makeReservation(0, LocalDateTime.now().minusDays(1), testMember)
         assertEquals(viewModel.reservationViewState.value, ReservationViewState.Error(ReservationError.InvalidDateTime))
     }
 
     @Test
     fun `makeReservation today with past tie results in ReservationError`() = runTest {
-        val reservation = Reservation(0, LocalDateTime.now().minusHours(1), testMember)
-        viewModel.makeReservation(reservation)
+        viewModel.makeReservation(0, LocalDateTime.now().minusHours(1), testMember)
         assertEquals(viewModel.reservationViewState.value, ReservationViewState.Error(ReservationError.InvalidDateTime))
     }
 

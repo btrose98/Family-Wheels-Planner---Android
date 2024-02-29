@@ -31,7 +31,6 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
-        continue-on-error: true # temp fix to bypass the secrets.properties missing error in workflow
 
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest

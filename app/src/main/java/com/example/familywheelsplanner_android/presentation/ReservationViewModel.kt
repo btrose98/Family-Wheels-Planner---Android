@@ -28,6 +28,10 @@ class ReservationViewModel @Inject constructor(
         MutableStateFlow(ReservationViewState.Loading)
     val reservationViewState: StateFlow<ReservationViewState> = _reservationViewState
 
+    private var _singleReservationViewState: MutableStateFlow<ReservationViewState> =
+        MutableStateFlow(ReservationViewState.Loading)
+    val singleReservationViewState: StateFlow<ReservationViewState> = _singleReservationViewState
+
     init {
         fetchReservations()
     }
@@ -65,9 +69,39 @@ class ReservationViewModel @Inject constructor(
         }
     }
 
-    fun makeReservation(reservationId: Int, reservationDate: LocalDateTime, reservationOwner: FamilyMember) {
-        val tzEnforcedDate = Reservation.convertToUSEastern(reservationDate)
-        val reservation = Reservation(reservationId, tzEnforcedDate, reservationOwner)
+    fun fetchReservationById(reservationId: Int) {
+        _singleReservationViewState.value = ReservationViewState.Loading
+        defaultScope.launch {
+            try {
+                val reservation = reservationRepo.fetchReservationById(reservationId)
+                _singleReservationViewState.value = ReservationViewState.SingleSuccess(reservation)
+                Timber.d("resulting reservations from server: $reservation")
+            } catch (e: Exception) {
+                val error = when(e) {
+                    is NetworkException -> ReservationError.NetworkError(e.message ?: "Unknown network error")
+                    else -> ReservationError.UnkownError
+                }
+                _singleReservationViewState.value = ReservationViewState.Error(error)
+            }
+        }
+    }
+
+    fun makeReservation(
+        reservationId: Int,
+        reservationStartDate: LocalDateTime,
+        reservationEndDate: LocalDateTime,
+        reservationOwner: Int, //TODO
+        car: Int //TODO
+    ) {
+        val tzEnforcedStartDate = Reservation.convertToUSEastern(reservationStartDate)
+        val tzEnforcedEndDate = Reservation.convertToUSEastern(reservationEndDate)
+        val reservation = Reservation(
+            reservationId,
+            tzEnforcedStartDate,
+            tzEnforcedEndDate,
+            reservationOwner,
+            car
+        )
         defaultScope.launch {
             if(!isReservationDateValid(reservation)) {
                 _reservationViewState.value = ReservationViewState.Error(ReservationError.InvalidDateTime)
@@ -92,14 +126,13 @@ class ReservationViewModel @Inject constructor(
     private fun isReservationDateValid(reservation: Reservation): Boolean {
         val currentTime = LocalDateTime.now()
 
-        //is reservation a valid day
-        if(reservation.reservationDate.toLocalDate() < currentTime.toLocalDate()) {
-            return false
-        }
+        if(reservation.startdatetime > reservation.enddatetime) return false
 
-        //if reservationDate is today, is reservation a valid time
-        if(reservation.reservationDate.toLocalDate() == currentTime.toLocalDate() &&
-            reservation.reservationDate.toLocalTime() < currentTime.toLocalTime()) {
+        if(reservation.startdatetime.toLocalDate() < currentTime.toLocalDate()) return false
+
+        //if reservationDate is today, is reservation time valid
+        if(reservation.startdatetime.toLocalDate() == currentTime.toLocalDate() &&
+            reservation.startdatetime.toLocalTime() < currentTime.toLocalTime()) {
             return false
         }
 

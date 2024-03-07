@@ -1,12 +1,15 @@
 package com.example.familywheelsplanner_android.domain
 
+import com.google.gson.annotations.SerializedName
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 data class Reservation(
-    val reservationId: Int,
-    val reservationDate: LocalDateTime,
-    val reservationOwner: FamilyMember
+    val id: Int,
+    val startdatetime: LocalDateTime,
+    val enddatetime: LocalDateTime,
+    val owner: Int,
+    val car: Int
 ) {
     companion object {
         fun convertToUSEastern(localDateTime: LocalDateTime): LocalDateTime {

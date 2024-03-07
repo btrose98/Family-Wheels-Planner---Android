@@ -1,6 +1,5 @@
 package com.example.familywheelsplanner_android.presentation
 
-import android.net.http.NetworkException
 import com.example.familywheelsplanner_android.domain.FamilyMember
 import com.example.familywheelsplanner_android.domain.Reservation
 import com.example.familywheelsplanner_android.domain.ReservationError
@@ -26,14 +25,18 @@ class ReservationViewModelTest {
     private lateinit var viewModel: ReservationViewModel
     private lateinit var mockRepo: ReservationRepository
     private lateinit var testMember: FamilyMember
+    private lateinit var currentTime: LocalDateTime
+    private val testCarId = 1
+    private lateinit var mockkReservation: Reservation
 
     @Before
     fun setUp() {
         Dispatchers.setMain(Dispatchers.Unconfined)
         mockRepo = mockk<ReservationRepository>()
         viewModel = ReservationViewModel(mockRepo)
-
         testMember = FamilyMember(0, "test user", Role.MEMBER)
+        currentTime = LocalDateTime.now()
+        mockkReservation = Reservation(0, currentTime, currentTime.plusHours(1), 0, 0)
     }
 
     @After
@@ -60,21 +63,28 @@ class ReservationViewModelTest {
 
     @Test
     fun `makeReservation with past date results in ReservationError`() = runTest {
-        viewModel.makeReservation(0, LocalDateTime.now().minusDays(1), testMember)
+        viewModel.makeReservation(0, currentTime.minusDays(1), currentTime, testMember.id, testCarId)
         assertEquals(viewModel.reservationViewState.value, ReservationViewState.Error(ReservationError.InvalidDateTime))
     }
 
     @Test
-    fun `makeReservation today with past tie results in ReservationError`() = runTest {
-        viewModel.makeReservation(0, LocalDateTime.now().minusHours(1), testMember)
+    fun `makeReservation today with past time results in ReservationError`() = runTest {
+        viewModel.makeReservation(0, currentTime.minusHours(1), currentTime, testMember.id, testCarId)
         assertEquals(viewModel.reservationViewState.value, ReservationViewState.Error(ReservationError.InvalidDateTime))
     }
 
     @Test
     fun `deleteReservation with id less than 0 results in ReservationError`() = runTest {
-        val reservation = Reservation(-1, LocalDateTime.now(), testMember)
-        viewModel.deleteReservation(reservation.reservationId)
+//        val reservation = Reservation(-1, LocalDateTime.now(), testMember)
+        viewModel.deleteReservation(-1)
         assertEquals(viewModel.reservationViewState.value, ReservationViewState.Error(ReservationError.InvalidId))
+    }
+
+    @Test
+    fun `fetchReservationById results in successful Reservation`() = runTest {
+        coEvery { mockRepo.fetchReservationById(mockkReservation.id) } returns mockkReservation
+        viewModel.fetchReservationById(0)
+        assertEquals(ReservationViewState.SingleSuccess(mockkReservation), viewModel.singleReservationViewState.value)
     }
 
 }

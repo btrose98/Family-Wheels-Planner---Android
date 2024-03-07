@@ -30,6 +30,7 @@ import com.example.familywheelsplanner_android.domain.ReservationViewState
 @Composable
 fun CalendarScreen(viewModel: ReservationViewModel) {
     val reservationViewState by viewModel.reservationViewState.collectAsState()
+    val singleReservationViewState by viewModel.singleReservationViewState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -66,10 +67,38 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
                                 .padding(16.dp)
                         )
                     }
+                    else -> {}
                 }
+                
+                //TESTING
+                when(singleReservationViewState) {
+                    is ReservationViewState.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .padding(16.dp)
+                        )
+                    }
+                    is ReservationViewState.SingleSuccess -> {
+                        val reservation = (singleReservationViewState as ReservationViewState.SingleSuccess).reservation
+                        Text(text = reservation.toString())
+                    }
+                    is ReservationViewState.Error -> {
+                        val errorMessage = (singleReservationViewState as ReservationViewState.Error).message
+                        Text(
+                            text = errorMessage.errorMessage ?: "",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(16.dp)
+                        )
+                    }
+                    else -> {}
+                }
+                
                 Spacer(modifier = Modifier.height(16.dp)) // Add space between text and button
                 Button(
-                    onClick = { viewModel.fetchAllReservations() },
+//                    onClick = { viewModel.fetchAllReservations() },
+                    onClick = { viewModel.fetchReservationById(1) },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
                     Text(text = "Refresh reservations")

@@ -15,6 +15,9 @@ interface ReservationApiService {
     @GET("/reservations/all")
     suspend fun getAllReservations(): List<Reservation>
 
+    @GET("/reservations/{reservationId}")
+    suspend fun getReservationById(@Path ("reservationId") reservationId: String): Reservation
+
     @POST("/reservations")
     suspend fun makeReservation(@Body reservation: Reservation)
 

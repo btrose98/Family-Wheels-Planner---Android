@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.familywheelsplanner_android.R
 import com.example.familywheelsplanner_android.domain.Reservation
@@ -103,10 +104,12 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
     var selectedDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
 
     val todayReservations = remember(reservations, selectedDate) {
-        reservations.filter { reservation ->
-            reservation.startdatetime.toLocalDate() <= selectedDate &&
-            reservation.enddatetime.toLocalDate() >= selectedDate
-        }
+        reservations
+            .filter { reservation ->
+                reservation.startdatetime.toLocalDate() <= selectedDate &&
+                reservation.enddatetime.toLocalDate() >= selectedDate
+            }
+            .sortedBy { it.startdatetime }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -145,21 +148,22 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
                     }
                 }
             )
-            HorizontalDivider()
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 8.dp
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                textDecoration = TextDecoration.Underline,
+                text = selectedDate?.month.toString()
+            )
             LazyColumn(Modifier.fillMaxWidth()) {
                 items(todayReservations) { reservation ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        Text(text = reservation.owner.toString())
-                        Text(text = reservation.car.toString())
-                        Text(text = reservation.startdatetime.toString() + " - " + reservation.enddatetime.toString())
-                    }
+                    ReservationCard(reservation = reservation)
                 }
             }
         }
-
     }
 }
 

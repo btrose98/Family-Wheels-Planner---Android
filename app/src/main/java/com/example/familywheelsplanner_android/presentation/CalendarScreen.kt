@@ -14,10 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -112,55 +116,72 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
             .sortedBy { it.startdatetime }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        val calendarState = rememberCalendarState(
-            startMonth = startMonth,
-            endMonth = endMonth,
-            firstVisibleMonth = currentMonth,
-            firstDayOfWeek = daysofWeek.first()
-        )
-        val visibleMonth = rememberFirstCompleteletyVisibleMonth(state = calendarState)
-        val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-        CompositionLocalProvider(value = LocalContentColor provides darkColorScheme().onSurface) {
-            SimpleCalendarTitle(
-                modifier = Modifier
+    Scaffold(
+        modifier = Modifier,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { Toast.makeText(context, "Add Reservation coming soon", Toast.LENGTH_SHORT).show() },
+            ) {
+                Icon(Icons.Filled.Add, "Floating action button.")
+            }
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        ) {
+            val calendarState = rememberCalendarState(
+                startMonth = startMonth,
+                endMonth = endMonth,
+                firstVisibleMonth = currentMonth,
+                firstDayOfWeek = daysofWeek.first()
+            )
+            val visibleMonth = rememberFirstCompleteletyVisibleMonth(state = calendarState)
+            val coroutineScope = rememberCoroutineScope()
+
+            CompositionLocalProvider(value = LocalContentColor provides darkColorScheme().onSurface) {
+                SimpleCalendarTitle(
+                    modifier = Modifier
 //                    .background(toolbarColor)
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
-                currentMonth = visibleMonth.yearMonth,
-                goToPrevious = {
-                    coroutineScope.launch {
-                        calendarState.animateScrollToMonth(calendarState.firstVisibleMonth.yearMonth.previousMonth)
+                        .padding(horizontal = 8.dp, vertical = 12.dp),
+                    currentMonth = visibleMonth.yearMonth,
+                    goToPrevious = {
+                        coroutineScope.launch {
+                            calendarState.animateScrollToMonth(calendarState.firstVisibleMonth.yearMonth.previousMonth)
+                        }
+                    },
+                    goToNext = {
+                        coroutineScope.launch {
+                            calendarState.animateScrollToMonth(calendarState.firstVisibleMonth.yearMonth.nextMonth)
+                        }
                     }
-                },
-                goToNext = {
-                    coroutineScope.launch {
-                        calendarState.animateScrollToMonth(calendarState.firstVisibleMonth.yearMonth.nextMonth)
+                )
+                DaysOfWeekTitle(daysOfWeek = daysofWeek)
+                HorizontalCalendar(
+                    state = calendarState,
+                    dayContent = { day ->
+                        Day(day, isSelected = selectedDate == day.date) {
+                            selectedDate = if (selectedDate == day.date) null else day.date
+                        }
                     }
-                }
-            )
-            DaysOfWeekTitle(daysOfWeek = daysofWeek)
-            HorizontalCalendar(
-                state = calendarState,
-                dayContent = { day ->
-                    Day(day, isSelected = selectedDate == day.date) {
-                        selectedDate = if (selectedDate == day.date) null else day.date
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    thickness = 8.dp
+                )
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    textDecoration = TextDecoration.Underline,
+                    text = selectedDate?.month.toString()
+                )
+                LazyColumn(Modifier.fillMaxWidth()) {
+                    items(todayReservations) { reservation ->
+                        ReservationCard(reservation = reservation)
                     }
-                }
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                thickness = 8.dp
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                textDecoration = TextDecoration.Underline,
-                text = selectedDate?.month.toString()
-            )
-            LazyColumn(Modifier.fillMaxWidth()) {
-                items(todayReservations) { reservation ->
-                    ReservationCard(reservation = reservation)
                 }
             }
         }

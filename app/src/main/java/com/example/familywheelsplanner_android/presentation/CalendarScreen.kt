@@ -2,8 +2,10 @@ package com.example.familywheelsplanner_android.presentation
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,6 +63,37 @@ import kotlin.coroutines.coroutineContext
 fun CalendarScreen(viewModel: ReservationViewModel) {
     val reservationViewState by viewModel.reservationViewState.collectAsState()
     val singleReservationViewState by viewModel.singleReservationViewState.collectAsState()
+    val reservations = when(reservationViewState) {
+        ReservationViewState.Loading -> {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(16.dp)
+            )
+            emptyList<Reservation>()
+        }
+
+        is ReservationViewState.Success -> {
+            (reservationViewState as ReservationViewState.Success).reservations
+//            MyCalendar(reservations)
+        }
+
+        is ReservationViewState.Error -> {
+            val errorMessage = (reservationViewState as ReservationViewState.Error).message
+            Text(
+                text = errorMessage.errorMessage ?: "",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(16.dp)
+            )
+            emptyList<Reservation>()
+        }
+
+        else -> {
+            emptyList<Reservation>()
+        }
+    }
+
 
     val currentDate = remember { LocalDate.now() }
     val currentMonth = remember { YearMonth.now() }
@@ -69,12 +102,18 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
     val daysofWeek = remember { daysOfWeek() }
     var selectedDate by remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
 
+    val todayReservations = remember(reservations, selectedDate) {
+        reservations.filter { reservation ->
+            reservation.startdatetime.toLocalDate() <= selectedDate &&
+            reservation.enddatetime.toLocalDate() >= selectedDate
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         val calendarState = rememberCalendarState(
             startMonth = startMonth,
             endMonth = endMonth,
             firstVisibleMonth = currentMonth,
-//        firstDayOfWeek = firstDayOfWeek
             firstDayOfWeek = daysofWeek.first()
         )
         val visibleMonth = rememberFirstCompleteletyVisibleMonth(state = calendarState)
@@ -107,87 +146,21 @@ fun CalendarScreen(viewModel: ReservationViewModel) {
                 }
             )
             HorizontalDivider()
-//            LazyColumn(Modifier.fillMaxWidth()) {
-//                items()
-//            }
+            LazyColumn(Modifier.fillMaxWidth()) {
+                items(todayReservations) { reservation ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Text(text = reservation.owner.toString())
+                        Text(text = reservation.car.toString())
+                        Text(text = reservation.startdatetime.toString() + " - " + reservation.enddatetime.toString())
+                    }
+                }
+            }
         }
 
     }
-
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(title = { Text("${R.string.top_bar_title}",) })
-//        },
-//    ) { paddingValues ->
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(paddingValues),
-//            Alignment.Center
-//        ) {
-//            Column(
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//                when(reservationViewState) {
-//                    ReservationViewState.Loading -> {
-//                        CircularProgressIndicator(
-//                            modifier = Modifier
-//                                .size(50.dp)
-//                                .padding(16.dp)
-//                        )
-//                    }
-//                    is ReservationViewState.Success -> {
-//                        val reservations = (reservationViewState as ReservationViewState.Success).reservations
-//                        MyCalendar(reservations)
-//                    }
-//                    is ReservationViewState.Error -> {
-//                        val errorMessage = (reservationViewState as ReservationViewState.Error).message
-//                        Text(
-//                            text = errorMessage.errorMessage ?: "",
-//                            textAlign = TextAlign.Center,
-//                            modifier = Modifier
-//                                .padding(16.dp)
-//                        )
-//                    }
-//                    else -> {}
-//                }
-//
-//                //TESTING
-//                when(singleReservationViewState) {
-//                    is ReservationViewState.Loading -> {
-//                        CircularProgressIndicator(
-//                            modifier = Modifier
-//                                .size(50.dp)
-//                                .padding(16.dp)
-//                        )
-//                    }
-//                    is ReservationViewState.SingleSuccess -> {
-//                        val reservation = (singleReservationViewState as ReservationViewState.SingleSuccess).reservation
-//                        Text(text = reservation.toString())
-//                    }
-//                    is ReservationViewState.Error -> {
-//                        val errorMessage = (singleReservationViewState as ReservationViewState.Error).message
-//                        Text(
-//                            text = errorMessage.errorMessage ?: "",
-//                            textAlign = TextAlign.Center,
-//                            modifier = Modifier
-//                                .padding(16.dp)
-//                        )
-//                    }
-//                    else -> {}
-//                }
-//
-//                Spacer(modifier = Modifier.height(16.dp)) // Add space between text and button
-//                Button(
-//                    onClick = { viewModel.fetchAllReservations() },
-////                    onClick = { viewModel.fetchReservationById(1) },
-//                    modifier = Modifier.padding(horizontal = 16.dp)
-//                ) {
-//                    Text(text = "Refresh reservations")
-//                }
-//            }
-//        }
-//    }
 }
 
 @Composable
@@ -199,13 +172,4 @@ fun rememberFirstCompleteletyVisibleMonth(state: CalendarState): CalendarMonth {
             .collect { month -> visibleMonth.value = month.month}
     }
     return visibleMonth.value
-}
-
-@Composable
-fun MyCalendar(reservations: List<Reservation>) {
-    LazyColumn {
-        items(reservations) {
-            Text(text = it.toString())
-        }
-    }
 }

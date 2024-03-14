@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -93,15 +94,26 @@ class ReservationViewModel @Inject constructor(
         reservationOwner: Int, //TODO
         car: Int //TODO
     ) {
-        val tzEnforcedStartDate = Reservation.convertToUSEastern(reservationStartDate)
-        val tzEnforcedEndDate = Reservation.convertToUSEastern(reservationEndDate)
+//        val tzEnforcedStartDate = Reservation.convertToUSEastern(reservationStartDate)
+//        val tzEnforcedEndDate = Reservation.convertToUSEastern(reservationEndDate)
+        //TESTING
+        val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        val isoStartDate = reservationStartDate.format(formatter)
+        val isoEndDate = reservationEndDate.format(formatter)
         val reservation = Reservation(
             reservationId,
-            tzEnforcedStartDate,
-            tzEnforcedEndDate,
+            isoStartDate,
+            isoEndDate,
             reservationOwner,
             car
         )
+
+        Timber.d("reservationStartdate: $reservationStartDate")
+        Timber.d("reservationEndDate: $reservationEndDate")
+//        Timber.d("tzStart: $tzEnforcedStartDate")
+//        Timber.d("tzEnd: $tzEnforcedEndDate")
+        Timber.d("reservation: \n$reservation")
+
         defaultScope.launch {
             if(!isReservationDateValid(reservation)) {
                 _reservationViewState.value = ReservationViewState.Error(ReservationError.InvalidDateTime)
@@ -125,14 +137,16 @@ class ReservationViewModel @Inject constructor(
 
     private fun isReservationDateValid(reservation: Reservation): Boolean {
         val currentTime = LocalDateTime.now()
+        val startDateTime = LocalDateTime.parse(reservation.startdatetime)
+        val endDateTime = LocalDateTime.parse(reservation.enddatetime)
 
-        if(reservation.startdatetime > reservation.enddatetime) return false
+        if(startDateTime > endDateTime) return false
 
-        if(reservation.startdatetime.toLocalDate() < currentTime.toLocalDate()) return false
+        if(startDateTime.toLocalDate() < currentTime.toLocalDate()) return false
 
         //if reservationDate is today, is reservation time valid
-        if(reservation.startdatetime.toLocalDate() == currentTime.toLocalDate() &&
-            reservation.startdatetime.toLocalTime() < currentTime.toLocalTime()) {
+        if(startDateTime.toLocalDate() == currentTime.toLocalDate() &&
+            startDateTime.toLocalTime() < currentTime.toLocalTime()) {
             return false
         }
 

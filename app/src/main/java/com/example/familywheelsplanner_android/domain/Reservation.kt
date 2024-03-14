@@ -6,8 +6,10 @@ import java.time.ZoneId
 
 data class Reservation(
     val id: Int,
-    val startdatetime: LocalDateTime,
-    val enddatetime: LocalDateTime,
+//    val startdatetime: LocalDateTime,
+//    val enddatetime: LocalDateTime,
+    val startdatetime: String,
+    val enddatetime: String,
     val owner: Int,
     val car: Int
 ) {
